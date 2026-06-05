@@ -12,7 +12,7 @@ const { RangePicker } = DatePicker
 export default function Bar5MinMarketPage() {
   const [code, setCode] = useState<string>()
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
-    dayjs().subtract(3, 'day').startOf('day'),
+    dayjs().subtract(1, 'month').startOf('day'),
     dayjs().endOf('day'),
   ])
 

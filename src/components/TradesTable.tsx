@@ -1,16 +1,26 @@
+import { useState } from 'react'
 import { Table, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { BacktestTrade } from '../types'
-import { formatDate, formatMoney } from '../utils/format'
+import { formatDate, formatDateTime, formatMoney } from '../utils/format'
 
 interface TradesTableProps {
   trades: BacktestTrade[]
   loading?: boolean
+  extended?: boolean
 }
 
-export default function TradesTable({ trades, loading }: TradesTableProps) {
+export default function TradesTable({ trades, loading, extended }: TradesTableProps) {
+  const [pageSize, setPageSize] = useState(20)
+  const isGrid = extended ?? trades.some((t) => t.tradeTime != null)
+
   const columns: ColumnsType<BacktestTrade> = [
-    { title: '日期', dataIndex: 'tradeDate', render: formatDate, width: 110 },
+    {
+      title: '时间',
+      dataIndex: isGrid ? 'tradeTime' : 'tradeDate',
+      render: (v: string) => (isGrid ? formatDateTime(v) : formatDate(v)),
+      width: isGrid ? 150 : 110,
+    },
     {
       title: '方向',
       dataIndex: 'side',
@@ -19,8 +29,32 @@ export default function TradesTable({ trades, loading }: TradesTableProps) {
         <Tag color={side === 'BUY' ? 'red' : 'green'}>{side === 'BUY' ? '买入' : '卖出'}</Tag>
       ),
     },
-    { title: '价格', dataIndex: 'price', render: (v) => formatMoney(v, 3) },
-    { title: '数量', dataIndex: 'quantity' },
+    { title: '成交价格', dataIndex: 'price', render: (v) => formatMoney(v, 3) },
+    ...(isGrid
+      ? [
+          {
+            title: '基准价格',
+            dataIndex: 'benchmarkPrice',
+            render: (v?: number) => (v != null ? formatMoney(v, 3) : '-'),
+          },
+          {
+            title: '涨跌%',
+            dataIndex: 'changePct',
+            render: (v?: number) => (v != null ? `${v.toFixed(6)}%` : '-'),
+          },
+        ]
+      : []),
+    { title: '股数', dataIndex: 'quantity' },
+    ...(isGrid
+      ? [
+          { title: '持仓', dataIndex: 'positionAfter' },
+          {
+            title: '现金',
+            dataIndex: 'cashAfter',
+            render: (v?: number) => formatMoney(v, 2),
+          },
+        ]
+      : []),
     { title: '手续费', dataIndex: 'commission', render: (v) => formatMoney(v, 4) },
     {
       title: '盈亏',
@@ -32,8 +66,8 @@ export default function TradesTable({ trades, loading }: TradesTableProps) {
           '-'
         ),
     },
-    { title: '权益', dataIndex: 'equityAfter', render: (v) => formatMoney(v, 2) },
-    { title: '信号', dataIndex: 'signalReason', ellipsis: true },
+    { title: '总资产', dataIndex: 'equityAfter', render: (v) => formatMoney(v, 2) },
+    { title: '类型', dataIndex: 'signalReason', ellipsis: true },
   ]
 
   return (
@@ -42,8 +76,13 @@ export default function TradesTable({ trades, loading }: TradesTableProps) {
       columns={columns}
       dataSource={trades}
       loading={loading}
-      pagination={{ pageSize: 10, showSizeChanger: true }}
-      scroll={{ x: 900 }}
+      pagination={{
+        pageSize,
+        showSizeChanger: true,
+        pageSizeOptions: ['20', '50', '100', '200', '500', '1000'],
+        onShowSizeChange: (_current, size) => setPageSize(size),
+      }}
+      scroll={{ x: isGrid ? 1200 : 900 }}
       size="small"
     />
   )

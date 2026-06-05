@@ -1,5 +1,6 @@
 import ReactECharts from 'echarts-for-react'
 import type { BacktestTrade } from '../types'
+import { formatDateTime } from '../utils/format'
 
 interface EquityChartProps {
   trades: BacktestTrade[]
@@ -8,11 +9,15 @@ interface EquityChartProps {
 }
 
 export default function EquityChart({ trades, initialCapital, height = 320 }: EquityChartProps) {
-  const sorted = [...trades].sort(
-    (a, b) => new Date(a.tradeDate).getTime() - new Date(b.tradeDate).getTime(),
-  )
+  const timeOf = (t: BacktestTrade) =>
+    new Date(t.tradeTime ?? t.tradeDate).getTime()
 
-  const dates = sorted.length > 0 ? sorted.map((t) => t.tradeDate) : ['起始']
+  const sorted = [...trades].sort((a, b) => timeOf(a) - timeOf(b))
+
+  const dates =
+    sorted.length > 0
+      ? sorted.map((t) => formatDateTime(t.tradeTime ?? t.tradeDate).slice(0, 16))
+      : ['起始']
   const equity =
     sorted.length > 0
       ? sorted.map((t) => t.equityAfter)

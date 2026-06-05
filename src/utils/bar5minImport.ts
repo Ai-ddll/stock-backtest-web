@@ -6,7 +6,7 @@ const MAX_ERRORS = 50
 /** 单次请求最大体积（需低于服务端 max-request-size） */
 const MAX_BATCH_BYTES = 20 * 1024 * 1024
 /** 与服务端 max-files-per-request 保持一致 */
-const DEFAULT_BATCH_SIZE = 8
+const DEFAULT_BATCH_SIZE = 16
 
 export type FolderImportProgress = {
   current: number

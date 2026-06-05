@@ -54,6 +54,34 @@ export interface BacktestRunRequest {
   slippageRate?: number
 }
 
+export interface GridTier5MinParams {
+  initialPosition: number
+  minPosition: number
+  dropThresholdPct: number
+  riseThresholdPct: number
+  dropTierQty: number
+  riseTierQty: number
+  maxTier: number
+}
+
+export interface GridTier5MinBacktestRequest {
+  barCode: string
+  symbol?: string
+  startDate: string
+  endDate: string
+  initialCapital?: number
+  commissionRate?: number
+  params: GridTier5MinParams
+}
+
+export interface GridTier5MinMetrics {
+  buyCount?: number
+  sellCount?: number
+  buyHoldReturn?: number
+  excessReturn?: number
+  strategyType?: string
+}
+
 export interface BacktestTask {
   id: number
   taskNo: string
@@ -64,6 +92,8 @@ export interface BacktestTask {
   initialCapital: number
   commissionRate: number
   slippageRate: number
+  barCode?: string
+  paramsJson?: string
   status: 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED'
   errorMessage?: string
   startedAt?: string
@@ -89,12 +119,17 @@ export interface BacktestTrade {
   id: number
   taskId: number
   tradeDate: string
+  tradeTime?: string
   side: 'BUY' | 'SELL'
   price: number
+  benchmarkPrice?: number
+  changePct?: number
   quantity: number
   commission: number
   slippage: number
   pnl?: number
+  cashAfter?: number
+  positionAfter?: number
   equityAfter: number
   signalReason?: string
   createdAt?: string

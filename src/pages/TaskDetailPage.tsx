@@ -18,7 +18,7 @@ import { fetchTaskDetail } from '../api/backtest'
 import EquityChart from '../components/EquityChart'
 import MetricsCards from '../components/MetricsCards'
 import TradesTable from '../components/TradesTable'
-import { formatDate, formatMoney, statusColor, statusLabel } from '../utils/format'
+import { formatDate, formatMoney, parseParamsJson, statusColor, statusLabel } from '../utils/format'
 
 export default function TaskDetailPage() {
   const { taskId } = useParams<{ taskId: string }>()
@@ -50,6 +50,8 @@ export default function TaskDetailPage() {
   }
 
   const { task, result, trades } = data
+  const taskParams = parseParamsJson(task.paramsJson)
+  const isGridTask = !!task.barCode
 
   return (
     <div>
@@ -58,6 +60,9 @@ export default function TaskDetailPage() {
       <Card style={{ marginBottom: 16 }}>
         <Descriptions bordered column={{ xs: 1, sm: 2, lg: 3 }} size="small">
           <Descriptions.Item label="股票">{task.symbol}</Descriptions.Item>
+          {task.barCode && (
+            <Descriptions.Item label="5分钟代码">{task.barCode}</Descriptions.Item>
+          )}
           <Descriptions.Item label="区间">
             {formatDate(task.startDate)} ~ {formatDate(task.endDate)}
           </Descriptions.Item>
@@ -70,6 +75,11 @@ export default function TaskDetailPage() {
           {task.errorMessage && (
             <Descriptions.Item label="错误" span={3}>
               <Typography.Text type="danger">{task.errorMessage}</Typography.Text>
+            </Descriptions.Item>
+          )}
+          {Object.keys(taskParams).length > 0 && (
+            <Descriptions.Item label="策略参数" span={3}>
+              <Typography.Text code>{JSON.stringify(taskParams)}</Typography.Text>
             </Descriptions.Item>
           )}
         </Descriptions>
@@ -87,7 +97,7 @@ export default function TaskDetailPage() {
       </Card>
 
       <Card title="成交明细" style={{ marginBottom: 16 }}>
-        <TradesTable trades={trades} />
+        <TradesTable trades={trades} extended={isGridTask} />
       </Card>
 
       <Card
