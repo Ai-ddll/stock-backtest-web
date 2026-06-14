@@ -3,7 +3,7 @@ import type { ApiResponse } from '../types'
 
 const client = axios.create({
   baseURL: '',
-  timeout: 120000,
+  timeout: 300000,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -27,8 +27,12 @@ export async function getData<T>(url: string, params?: Record<string, unknown>):
   return data.data
 }
 
-export async function postData<T, B = unknown>(url: string, body: B): Promise<T> {
-  const { data } = await client.post<ApiResponse<T>>(url, body)
+export async function postData<T, B = unknown>(
+  url: string,
+  body: B,
+  config?: { timeout?: number },
+): Promise<T> {
+  const { data } = await client.post<ApiResponse<T>>(url, body, config)
   return data.data
 }
 

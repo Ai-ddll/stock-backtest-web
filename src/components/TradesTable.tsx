@@ -25,16 +25,27 @@ export default function TradesTable({ trades, loading, extended }: TradesTablePr
       title: '方向',
       dataIndex: 'side',
       width: 80,
-      render: (side: string) => (
-        <Tag color={side === 'BUY' ? 'red' : 'green'}>{side === 'BUY' ? '买入' : '卖出'}</Tag>
-      ),
+      render: (side: string) => {
+        if (side === 'BUY') {
+          return <Tag color="red">买入</Tag>
+        }
+        if (side === 'DIVIDEND') {
+          return <Tag color="blue">分红</Tag>
+        }
+        return <Tag color="green">卖出</Tag>
+      },
     },
     { title: '成交价格', dataIndex: 'price', render: (v) => formatMoney(v, 3) },
     ...(isGrid
       ? [
           {
-            title: '基准价格',
-            dataIndex: 'benchmarkPrice',
+            title: '买入基准',
+            dataIndex: 'buyBenchmarkPrice',
+            render: (v?: number) => (v != null ? formatMoney(v, 3) : '-'),
+          },
+          {
+            title: '卖出基准',
+            dataIndex: 'sellBenchmarkPrice',
             render: (v?: number) => (v != null ? formatMoney(v, 3) : '-'),
           },
           {
@@ -48,6 +59,12 @@ export default function TradesTable({ trades, loading, extended }: TradesTablePr
     ...(isGrid
       ? [
           { title: '持仓', dataIndex: 'positionAfter' },
+          { title: '永久持仓', dataIndex: 'permanentPosition', render: (v?: number) => v ?? 0 },
+          {
+            title: '持仓成本',
+            dataIndex: 'positionCost',
+            render: (v?: number) => (v != null ? formatMoney(v, 3) : '-'),
+          },
           {
             title: '现金',
             dataIndex: 'cashAfter',
@@ -72,17 +89,21 @@ export default function TradesTable({ trades, loading, extended }: TradesTablePr
 
   return (
     <Table
+      className="trades-table"
       rowKey="id"
       columns={columns}
       dataSource={trades}
       loading={loading}
+      sticky={{ offsetHeader: 64 }}
       pagination={{
         pageSize,
+        total: trades.length,
         showSizeChanger: true,
+        showTotal: (total) => `共 ${total} 条`,
         pageSizeOptions: ['20', '50', '100', '200', '500', '1000'],
         onShowSizeChange: (_current, size) => setPageSize(size),
       }}
-      scroll={{ x: isGrid ? 1200 : 900 }}
+      scroll={{ x: isGrid ? 1400 : 900 }}
       size="small"
     />
   )

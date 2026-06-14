@@ -79,7 +79,7 @@ export default function BacktestPage() {
                 layout="vertical"
                 onFinish={onFinish}
                 initialValues={{
-                  dateRange: [dayjs().subtract(1, 'year').startOf('year'), dayjs().endOf('year')],
+                  dateRange: [dayjs().subtract(3, 'month'), dayjs()],
                   initialCapital: 1000000,
                   commissionRate: 0.0003,
                   slippageRate: 0.0001,

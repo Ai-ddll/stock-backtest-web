@@ -10,17 +10,20 @@ import {
   Tag,
   Typography,
 } from 'antd'
-import { RobotOutlined } from '@ant-design/icons'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { ReloadOutlined, RobotOutlined } from '@ant-design/icons'
 import { analyzeStrategy } from '../api/ai'
 import { fetchTaskDetail } from '../api/backtest'
+import { fetchStock } from '../api/stocks'
 import EquityChart from '../components/EquityChart'
 import MetricsCards from '../components/MetricsCards'
 import TradesTable from '../components/TradesTable'
 import { formatDate, formatMoney, parseParamsJson, statusColor, statusLabel } from '../utils/format'
+import { getStrategyParamEntries } from '../utils/strategyParams'
 
 export default function TaskDetailPage() {
+  const navigate = useNavigate()
   const { taskId } = useParams<{ taskId: string }>()
   const id = Number(taskId)
   const [question, setQuestion] = useState('')
@@ -30,6 +33,13 @@ export default function TaskDetailPage() {
     queryKey: ['taskDetail', id],
     queryFn: () => fetchTaskDetail(id),
     enabled: Number.isFinite(id) && id > 0,
+  })
+
+  const symbol = data?.task.symbol
+  const { data: stock } = useQuery({
+    queryKey: ['stock', symbol],
+    queryFn: () => fetchStock(symbol!),
+    enabled: !!symbol,
   })
 
   const aiMutation = useMutation({
@@ -51,15 +61,34 @@ export default function TaskDetailPage() {
 
   const { task, result, trades } = data
   const taskParams = parseParamsJson(task.paramsJson)
+  const strategyParamEntries = getStrategyParamEntries(taskParams)
   const isGridTask = !!task.barCode
 
   return (
     <div>
-      <Typography.Title level={3}>回测详情 — {task.taskNo}</Typography.Title>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Typography.Title level={3} style={{ margin: 0 }}>
+          回测详情 — {task.taskNo}
+        </Typography.Title>
+        <Button
+          type="primary"
+          icon={<ReloadOutlined />}
+          onClick={() =>
+            navigate('/backtest/grid-tier-5min', { state: { fromTask: task } })
+          }
+        >
+          重新测算
+        </Button>
+      </div>
 
       <Card style={{ marginBottom: 16 }}>
         <Descriptions bordered column={{ xs: 1, sm: 2, lg: 3 }} size="small">
+          <Descriptions.Item label="任务号">{task.taskNo}</Descriptions.Item>
+          {task.batchNo && (
+            <Descriptions.Item label="批次号">{task.batchNo}</Descriptions.Item>
+          )}
           <Descriptions.Item label="股票">{task.symbol}</Descriptions.Item>
+          <Descriptions.Item label="股票名称">{stock?.name ?? '-'}</Descriptions.Item>
           {task.barCode && (
             <Descriptions.Item label="5分钟代码">{task.barCode}</Descriptions.Item>
           )}
@@ -77,9 +106,15 @@ export default function TaskDetailPage() {
               <Typography.Text type="danger">{task.errorMessage}</Typography.Text>
             </Descriptions.Item>
           )}
-          {Object.keys(taskParams).length > 0 && (
+          {strategyParamEntries.length > 0 && (
             <Descriptions.Item label="策略参数" span={3}>
-              <Typography.Text code>{JSON.stringify(taskParams)}</Typography.Text>
+              <Descriptions bordered size="small" column={{ xs: 1, sm: 2, lg: 3 }}>
+                {strategyParamEntries.map((entry) => (
+                  <Descriptions.Item key={entry.label} label={entry.label}>
+                    {entry.value}
+                  </Descriptions.Item>
+                ))}
+              </Descriptions>
             </Descriptions.Item>
           )}
         </Descriptions>

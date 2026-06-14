@@ -44,3 +44,17 @@ body {
 .ant-table-row-selected > td {
   background: #e6f4ff !important;
 }
+
+.trades-table .ant-table-sticky-holder {
+  background: #fafafa;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.trades-table .ant-table-sticky-holder .ant-table-thead > tr > th {
+  background: #fafafa;
+}
+
+.trades-table .ant-table-thead > tr > th {
+  background: #fafafa;
+}
