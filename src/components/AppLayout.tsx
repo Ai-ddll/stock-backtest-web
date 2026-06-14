@@ -16,6 +16,8 @@ const menuItems = [
   { key: '/stocks', icon: <StockOutlined />, label: '日K行情' },
   { key: '/bar5min/market', icon: <LineChartOutlined />, label: '5分钟行情' },
   { key: '/bar5min', icon: <ImportOutlined />, label: '5分钟导入' },
+  { key: '/stock-dividend', icon: <ImportOutlined />, label: '分红送股导入' },
+  { key: '/stock-financial-indicator', icon: <ImportOutlined />, label: '财务指标导入' },
   { key: '/backtest/grid-tier-5min', icon: <ThunderboltOutlined />, label: '5分钟网格回测' },
   { key: '/backtest', icon: <ThunderboltOutlined />, label: '策略回测' },
   { key: '/tasks', icon: <BarChartOutlined />, label: '回测记录' },

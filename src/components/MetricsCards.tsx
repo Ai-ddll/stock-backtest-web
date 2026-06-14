@@ -21,6 +21,8 @@ function parseGridMetrics(metricsJson?: string): GridTier5MinMetrics {
     buyCount: raw.buyCount as number | undefined,
     sellCount: raw.sellCount as number | undefined,
     buyHoldReturn: raw.buyHoldReturn as number | undefined,
+    buyHoldDividendReturn: raw.buyHoldDividendReturn as number | undefined,
+    dividendReturn: raw.dividendReturn as number | undefined,
     excessReturn: raw.excessReturn as number | undefined,
     strategyType: raw.strategyType as string | undefined,
   }
@@ -51,6 +53,18 @@ export default function MetricsCards({ result, initialCapital }: MetricsCardsPro
           />
         </Card>
       </Col>
+      {grid.dividendReturn != null && (
+        <Col xs={24} sm={12} lg={6}>
+          <Card>
+            <Statistic
+              title="分红收益"
+              value={formatPercent(grid.dividendReturn)}
+              prefix={<PercentageOutlined />}
+              valueStyle={{ color: grid.dividendReturn >= 0 ? '#3f8600' : '#cf1322' }}
+            />
+          </Card>
+        </Col>
+      )}
       {grid.buyHoldReturn != null && (
         <Col xs={24} sm={12} lg={6}>
           <Card>
@@ -58,6 +72,18 @@ export default function MetricsCards({ result, initialCapital }: MetricsCardsPro
               title="买入持有"
               value={formatPercent(grid.buyHoldReturn)}
               prefix={<PercentageOutlined />}
+            />
+          </Card>
+        </Col>
+      )}
+      {grid.buyHoldDividendReturn != null && (
+        <Col xs={24} sm={12} lg={6}>
+          <Card>
+            <Statistic
+              title="买入持有分红收益"
+              value={formatPercent(grid.buyHoldDividendReturn)}
+              prefix={<PercentageOutlined />}
+              valueStyle={{ color: grid.buyHoldDividendReturn >= 0 ? '#3f8600' : '#cf1322' }}
             />
           </Card>
         </Col>
